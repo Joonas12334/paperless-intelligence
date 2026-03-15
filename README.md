@@ -10,15 +10,17 @@ AI-powered document processor for Paperless-ngx that uses Ollama to generate doc
 - **Preview mode**: Review proposed titles before saving
 
 ## Disclaimer
- Almost all of the code has been created using ChatGPT 5.4, 5.3 Codex and MiniMax 2.5. That means technically this whole project is a slop, a working slop, but take it as you will. You have been warned.
+ Almost all of the code has been created using ChatGPT 5.3 Codex, ChatGPT 5.4 and MiniMax M2.5. Aka technically this project is a slop. A working slop, but take it as you will.
+
+[## Preview](preview.gif)
+
 
 ## Requirements
 
 - Python 3.11+
 - [Paperless-ngx](https://github.com/paperless-ngx/paperless-ngx) instance(s)
 - [Ollama](https://github.com/ollama/ollama) server with vision-capable model
-- Pillow for image normalization before sending documents to Ollama
-- Optional: PyMuPDF for strict PDF classification and PDF page rendering
+- Optional: PyMuPDF for strict PDF classification
 
 ## Installation
 
@@ -28,9 +30,9 @@ git clone https://github.com/your-repo/paperless-intelligence.git
 cd paperless-intelligence
 
 # Install dependencies
-pip install pydantic pydantic-settings httpx Pillow
+pip install pydantic pydantic-settings httpx
 
-# Optional: for strict PDF classification and direct PDF rendering
+# Optional: for strict PDF classification
 pip install PyMuPDF
 ```
 
@@ -55,7 +57,6 @@ PAPERLESS_SERVER_2_TOKEN=your-token
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=qwen3.5:27b
 OLLAMA_FALLBACK_MODEL=qwen3.5:latest
-DOCUMENT_TITLE_LANGUAGE=Estonian
 
 # Processing
 MAX_RETRIES=2
@@ -73,11 +74,6 @@ Each server needs:
 
 - **Primary model** (`ollama_model`): Vision-capable model for OCR and title generation (e.g., `qwen3.5:27b`, `llama3.2:90b`)
 - **Fallback model** (`ollama_fallback_model`): Smaller model for retry on timeout
-
-### Title Language
-
-- **Default title language** (`document_title_language`): Language to use for generated document titles, such as `Estonian`, `English`, or `German`
-- Optional: **Custom title prompt override** (`ollama_title_prompt_hint`): Replaces the built-in title-language guidance entirely
 
 ### Metadata Requirements
 
