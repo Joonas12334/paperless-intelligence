@@ -163,7 +163,7 @@ def main_interactive() -> int:
 
     while True:
         clear_screen()
-        print("=== Paperless AI ===")
+        print("=== Paperless Intelligence ===")
         print("1. Run batch (process all servers)")
         print("2. Preview document")
         print("3. Validate config")
