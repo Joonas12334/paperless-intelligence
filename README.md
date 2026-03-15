@@ -97,9 +97,7 @@ Shows a menu with options:
 1. Run batch (process all servers)
 2. Preview document
 3. Bootstrap (validate config)
-4. Show settings
-5. Save settings
-6. Exit
+4. Exit
 
 ### Command Line Mode
 
