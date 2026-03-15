@@ -1,4 +1,5 @@
 import base64
+import io
 import re
 import time
 from typing import Any, Callable
@@ -23,6 +24,12 @@ try:
     import fitz
 except ImportError:
     fitz = None
+
+try:
+    from PIL import Image, ImageOps
+except ImportError:
+    Image = None
+    ImageOps = None
 
 
 class Processor:
@@ -498,7 +505,7 @@ class Processor:
                 if not isinstance(item, dict):
                     continue
 
-                field = item.get("field")
+                field: Any = item.get("field")
                 if isinstance(field, dict):
                     field = field.get("id")
 
@@ -516,9 +523,15 @@ class Processor:
 
     def _load_vision_image_base64(self, document_id: int) -> str | None:
         try:
-            image_bytes, content_type = self.paperless.download_original(document_id)
+            source_bytes, content_type = self.paperless.download_original(document_id)
+            if self._is_pdf_file(source_bytes, content_type):
+                rendered_pdf = self._render_pdf_page_to_png(source_bytes, document_id)
+                if rendered_pdf:
+                    return base64.b64encode(rendered_pdf).decode("ascii")
             if self._is_image_content_type(content_type):
-                return base64.b64encode(image_bytes).decode("ascii")
+                normalized_image = self._normalize_image_bytes_for_ollama(source_bytes, content_type)
+                if normalized_image:
+                    return base64.b64encode(normalized_image).decode("ascii")
         except Exception:
             pass
 
@@ -533,7 +546,60 @@ class Processor:
         if not self._is_image_content_type(content_type):
             return None
 
-        return base64.b64encode(image_bytes).decode("ascii")
+        normalized_image = self._normalize_image_bytes_for_ollama(image_bytes, content_type)
+        if not normalized_image:
+            return None
+
+        return base64.b64encode(normalized_image).decode("ascii")
+
+    def _normalize_image_bytes_for_ollama(self, image_bytes: bytes, content_type: str) -> bytes | None:
+        if not image_bytes:
+            return None
+
+        lowered = content_type.lower()
+        if "png" in lowered:
+            return image_bytes
+        if "jpeg" in lowered or "jpg" in lowered:
+            return image_bytes
+
+        if Image is None or ImageOps is None:
+            return None
+
+        try:
+            with Image.open(io.BytesIO(image_bytes)) as image:
+                normalized: Any = ImageOps.exif_transpose(image)
+                if normalized.mode not in ("RGB", "RGBA", "L"):
+                    normalized = normalized.convert("RGBA") if "A" in normalized.mode else normalized.convert("RGB")
+
+                output = io.BytesIO()
+                normalized.save(output, format="PNG")
+                return output.getvalue()
+        except Exception:
+            return None
+
+    def _render_pdf_page_to_png(self, file_bytes: bytes, document_id: int) -> bytes | None:
+        if not file_bytes or fitz is None:
+            return None
+
+        try:
+            pdf = fitz.open(stream=file_bytes, filetype="pdf")
+        except Exception as exc:
+            self._progress(f"[{self.server.name}] Document #{document_id}: failed to render PDF preview ({exc})")
+            return None
+
+        try:
+            if getattr(pdf, "page_count", 0) < 1:
+                return None
+
+            page = pdf.load_page(0)
+            matrix = fitz.Matrix(2, 2)
+            pixmap = page.get_pixmap(matrix=matrix, alpha=False)
+            return pixmap.tobytes("png")
+        except Exception as exc:
+            self._progress(f"[{self.server.name}] Document #{document_id}: failed to rasterize PDF page ({exc})")
+            return None
+        finally:
+            pdf.close()
 
     def _is_image_content_type(self, content_type: str) -> bool:
         lowered = content_type.lower()

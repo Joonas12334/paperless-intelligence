@@ -14,7 +14,8 @@ AI-powered document processor for Paperless-ngx that uses Ollama to generate doc
 - Python 3.11+
 - [Paperless-ngx](https://github.com/paperless-ngx/paperless-ngx) instance(s)
 - [Ollama](https://github.com/ollama/ollama) server with vision-capable model
-- Optional: PyMuPDF for strict PDF classification
+- Pillow for image normalization before sending documents to Ollama
+- Optional: PyMuPDF for strict PDF classification and PDF page rendering
 
 ## Installation
 
@@ -24,9 +25,9 @@ git clone https://github.com/your-repo/paperless-intelligence.git
 cd paperless-intelligence
 
 # Install dependencies
-pip install pydantic pydantic-settings httpx
+pip install pydantic pydantic-settings httpx Pillow
 
-# Optional: for strict PDF classification
+# Optional: for strict PDF classification and direct PDF rendering
 pip install PyMuPDF
 ```
 
