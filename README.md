@@ -9,6 +9,9 @@ AI-powered document processor for Paperless-ngx that uses Ollama to generate doc
 - **Automatic fallback**: Retries with a smaller/faster model on timeout
 - **Preview mode**: Review proposed titles before saving
 
+## Disclaimer
+ Almost all of the code has been created using ChatGPT 5.4, 5.3 Codex and MiniMax 2.5. That means technically this whole project is a slop, a working slop, but take it as you will. You have been warned.
+
 ## Requirements
 
 - Python 3.11+
