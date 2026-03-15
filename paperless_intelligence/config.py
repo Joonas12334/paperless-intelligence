@@ -1,4 +1,3 @@
-import os
 import re
 from pathlib import Path
 
@@ -52,6 +51,7 @@ class Settings(BaseSettings):
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "qwen3.5:27b"
     ollama_fallback_model: str = "qwen3.5:latest"
+    document_title_language: str = "Estonian"
     ollama_system_prompt: str = (
         "You are an advanced document digitization assistant. Your task is to extract text from images into a clean PLAIN TEXT format. "
         "Strictly follow these rules:\n"
@@ -60,18 +60,33 @@ class Settings(BaseSettings):
         "2. Transcribe the document exactly as written. "
         "3. NO CONVERSATION: Output only the extracted text. Do not include markdown backticks (```), 'Here is the text', or JSON formatting."
     )
-    ollama_title_prompt_hint: str = (
-        "Based on the document content, generate a concise title in ESTONIAN.\n"
-        "Format: '[Category or Main Item] - [Vendor]'.\n"
-        "Examples: 'Toidulisandid - Ostrovit', 'Kütusearve - Circle K', 'Telefoniarve - Telia'.\n"
-        "Rules: \n"
-        "1. Always use Estonian, even if the document is in English.\n"
-        "2. Output ONLY the title string. No quotation marks or file extensions."
-    )
+    ollama_title_prompt_hint: str | None = None
 
     # Processing options
     max_retries: int = 2
     request_timeout_seconds: int = 240
+
+    @property
+    def resolved_document_title_language(self) -> str:
+        value = self.document_title_language.strip()
+        return value or "Estonian"
+
+    @property
+    def resolved_ollama_title_prompt_hint(self) -> str:
+        if self.ollama_title_prompt_hint:
+            custom_hint = self.ollama_title_prompt_hint.strip()
+            if custom_hint:
+                return custom_hint
+
+        language = self.resolved_document_title_language
+        return (
+            f"Based on the document content, generate a concise title in {language}.\n"
+            "Format: '[Category or Main Item] - [Vendor]'.\n"
+            "Examples: 'Toidulisandid - Ostrovit', 'Kütusearve - Circle K', 'Telefoniarve - Telia'.\n"
+            "Rules: \n"
+            f"1. Always use {language}, even if the document is in another language.\n"
+            "2. Output ONLY the title string. No quotation marks or file extensions."
+        )
 
     @property
     def servers(self) -> list[PaperlessServerConfig]:

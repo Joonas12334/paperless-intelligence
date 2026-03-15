@@ -9,6 +9,9 @@ AI-powered document processor for Paperless-ngx that uses Ollama to generate doc
 - **Automatic fallback**: Retries with a smaller/faster model on timeout
 - **Preview mode**: Review proposed titles before saving
 
+## Disclaimer
+ Almost all of the code has been created using ChatGPT 5.4, 5.3 Codex and MiniMax 2.5. That means technically this whole project is a slop, a working slop, but take it as you will. You have been warned.
+
 ## Requirements
 
 - Python 3.11+
@@ -52,6 +55,7 @@ PAPERLESS_SERVER_2_TOKEN=your-token
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=qwen3.5:27b
 OLLAMA_FALLBACK_MODEL=qwen3.5:latest
+DOCUMENT_TITLE_LANGUAGE=Estonian
 
 # Processing
 MAX_RETRIES=2
@@ -69,6 +73,11 @@ Each server needs:
 
 - **Primary model** (`ollama_model`): Vision-capable model for OCR and title generation (e.g., `qwen3.5:27b`, `llama3.2:90b`)
 - **Fallback model** (`ollama_fallback_model`): Smaller model for retry on timeout
+
+### Title Language
+
+- **Default title language** (`document_title_language`): Language to use for generated document titles, such as `Estonian`, `English`, or `German`
+- Optional: **Custom title prompt override** (`ollama_title_prompt_hint`): Replaces the built-in title-language guidance entirely
 
 ### Metadata Requirements
 

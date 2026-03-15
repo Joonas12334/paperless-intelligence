@@ -283,7 +283,7 @@ class Processor:
                     model=model,
                     text=source_text,
                     context=context,
-                    title_hint=self.settings.ollama_title_prompt_hint,
+                    title_hint=self.settings.resolved_ollama_title_prompt_hint,
                 ),
             )
             title = self._sanitize_title(str(candidate.get("title", "")))
@@ -319,7 +319,7 @@ class Processor:
                 image_base64=image_b64,
                 context=context,
                 system_prompt=self.settings.ollama_system_prompt,
-                title_hint=self.settings.ollama_title_prompt_hint,
+                title_hint=self.settings.resolved_ollama_title_prompt_hint,
             ),
         )
         title = self._sanitize_title(str(candidate.get("title", "")))
