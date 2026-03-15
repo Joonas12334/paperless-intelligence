@@ -245,7 +245,7 @@ def main() -> int:
     if len(sys.argv) > 1:
         command = sys.argv[1]
         if command in ("-h", "--help"):
-            print("Usage: python paperless-ai.py [command]")
+            print("Usage: python paperless-intelligence.py [command]")
             print("Commands: validate, run, preview <id>")
             print("Or run without arguments for interactive menu.")
             return EXIT_OK

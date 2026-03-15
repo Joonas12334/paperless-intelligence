@@ -1,4 +1,4 @@
-# Paperless AI
+# Paperless Intelligence
 
 AI-powered document processor for Paperless-ngx that uses Ollama to generate document titles and OCR content.
 
@@ -20,8 +20,8 @@ AI-powered document processor for Paperless-ngx that uses Ollama to generate doc
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-repo/paperless-ai.git
-cd paperless-ai
+git clone https://github.com/your-repo/paperless-intelligence.git
+cd paperless-intelligence
 
 # Install dependencies
 pip install pydantic pydantic-settings httpx
@@ -81,7 +81,7 @@ Each Paperless-ngx instance needs a custom field:
 ### Interactive Mode (default)
 
 ```bash
-python paperless-ai.py
+python paperless-intelligence.py
 ```
 
 Shows a menu with options:
@@ -95,10 +95,10 @@ Shows a menu with options:
 ### Command Line Mode
 
 ```bash
-python paperless-ai.py validate   # Validate config
-python paperless-ai.py run         # Process all servers
-python paperless-ai.py preview 123  # Preview document
-python paperless-ai.py preview 123 --server diil  # With server selection
+python paperless-intelligence.py validate   # Validate config
+python paperless-intelligence.py run         # Process all servers
+python paperless-intelligence.py preview 123  # Preview document
+python paperless-intelligence.py preview 123 --server diil  # With server selection
 ```
 
 ## Commands
@@ -123,7 +123,7 @@ The tool analyzes original PDFs to determine processing mode:
 ## Architecture
 
 ```
-paperless_ai/
+paperless_intelligence/
 ├── __init__.py      # Package entry
 ├── config.py        # Settings (Pydantic + .env)
 ├── api.py           # HTTP clients (httpx)
