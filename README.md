@@ -12,7 +12,10 @@ AI-powered document processor for Paperless-ngx that uses Ollama to generate doc
 ## Disclaimer
  Almost all of the code has been created using ChatGPT 5.3 Codex, ChatGPT 5.4 and MiniMax M2.5. Aka technically this project is a slop. A working slop, but take it as you will.
 
-[## Preview](preview.gif)
+## Preview
+<p align="center">
+  <img src="preview.gif" alt="Paperless Intelligence Demo" width="100%">
+</p>
 
 
 ## Requirements
