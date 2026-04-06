@@ -182,15 +182,18 @@ class Processor:
         if not clean_content:
             raise RuntimeError("Proposed content is empty")
 
+        doc = self.paperless.get_document(document_id)
+        current_tags = sorted(self._extract_tag_ids(doc))
+
         try:
             self._progress(f"[{self.server.name}] Updating title for document #{document_id}...")
-            self.paperless.update_title(document_id, clean_title)
+            self.paperless.update_title(document_id, clean_title, tags=current_tags)
         except RuntimeError as exc:
             raise RuntimeError(f"Failed to update the document title in Paperless: {exc}") from exc
         if overwrite_content:
             try:
                 self._progress(f"[{self.server.name}] Overwriting OCR content for document #{document_id}...")
-                self.paperless.update_content(document_id, clean_content)
+                self.paperless.update_content(document_id, clean_content, tags=current_tags)
             except RuntimeError as exc:
                 raise RuntimeError(f"Failed to overwrite OCR content in Paperless: {exc}") from exc
         else:
@@ -202,6 +205,7 @@ class Processor:
             custom_field_id=custom_field_id,
             status_name="Done",
             status_option_ids=status_option_ids,
+            tags=current_tags,
         )
         return clean_title
 
@@ -212,12 +216,16 @@ class Processor:
         custom_field_id: int,
         status_option_ids: dict[str, str],
     ) -> bool:
+        initial_doc = self.paperless.get_document(document_id)
+        current_tags = sorted(self._extract_tag_ids(initial_doc))
+
         self._progress(f"[{self.server.name}] Document #{document_id}: Setting status to Queued...")
         self._update_status(
             document_id,
             custom_field_id=custom_field_id,
             status_name="Queued",
             status_option_ids=status_option_ids,
+            tags=current_tags,
         )
 
         retries = max(1, int(self.settings.max_retries))
@@ -225,12 +233,13 @@ class Processor:
             try:
                 self._progress(f"[{self.server.name}] Document #{document_id}: attempt {attempt}/{retries}")
                 fresh_doc = self.paperless.get_document(document_id)
+                current_tags = sorted(self._extract_tag_ids(fresh_doc))
                 proposed = self._propose_title(fresh_doc)
                 self._progress(f"[{self.server.name}] Document #{document_id}: saving title")
-                self.paperless.update_title(document_id, proposed.title)
+                self.paperless.update_title(document_id, proposed.title, tags=current_tags)
                 if proposed.overwrite_content:
                     self._progress(f"[{self.server.name}] Document #{document_id}: overwriting OCR content")
-                    self.paperless.update_content(document_id, proposed.content_to_save)
+                    self.paperless.update_content(document_id, proposed.content_to_save, tags=current_tags)
                 else:
                     self._progress(f"[{self.server.name}] Document #{document_id}: skipping OCR overwrite")
                 self._progress(f"[{self.server.name}] Document #{document_id}: marking status Done")
@@ -239,6 +248,7 @@ class Processor:
                     custom_field_id=custom_field_id,
                     status_name="Done",
                     status_option_ids=status_option_ids,
+                    tags=current_tags,
                 )
                 return True
             except Exception as exc:
@@ -254,6 +264,7 @@ class Processor:
             custom_field_id=custom_field_id,
             status_name="Failed",
             status_option_ids=status_option_ids,
+            tags=current_tags,
         )
         return False
 
@@ -740,6 +751,7 @@ class Processor:
         custom_field_id: int,
         status_name: str,
         status_option_ids: dict[str, str],
+        tags: list[int] | None = None,
     ) -> None:
         value_variants: list[Any] = []
         option_id = status_option_ids.get(status_name)
@@ -752,6 +764,7 @@ class Processor:
                 document_id,
                 field_id=custom_field_id,
                 value_variants=value_variants,
+                tags=tags,
             )
         except RuntimeError as exc:
             raise RuntimeError(

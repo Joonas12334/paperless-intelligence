@@ -146,11 +146,17 @@ class PaperlessApi:
     def get_document(self, document_id: int) -> dict[str, Any]:
         return self._request_json("GET", f"/api/documents/{document_id}/")
 
-    def update_title(self, document_id: int, title: str) -> None:
-        self._request_json("PATCH", f"/api/documents/{document_id}/", json_data={"title": title})
+    def update_title(self, document_id: int, title: str, *, tags: list[int] | None = None) -> None:
+        payload: dict[str, Any] = {"title": title}
+        if tags is not None:
+            payload["tags"] = tags
+        self._request_json("PATCH", f"/api/documents/{document_id}/", json_data=payload)
 
-    def update_content(self, document_id: int, content: str) -> None:
-        self._request_json("PATCH", f"/api/documents/{document_id}/", json_data={"content": content})
+    def update_content(self, document_id: int, content: str, *, tags: list[int] | None = None) -> None:
+        payload: dict[str, Any] = {"content": content}
+        if tags is not None:
+            payload["tags"] = tags
+        self._request_json("PATCH", f"/api/documents/{document_id}/", json_data=payload)
 
     def update_document_metadata(
         self,
@@ -200,14 +206,16 @@ class PaperlessApi:
         *,
         field_id: int,
         value_variants: list[Any],
+        tags: list[int] | None = None,
     ) -> None:
         last_error: Exception | None = None
+        tags_part: dict[str, Any] = {"tags": tags} if tags is not None else {}
 
         for value in value_variants:
             payload_variants = [
-                {"custom_fields": {str(field_id): value}},
-                {"custom_fields": [{"field": field_id, "value": value}]},
-                {"custom_fields": [{"id": field_id, "value": value}]},
+                {**tags_part, "custom_fields": {str(field_id): value}},
+                {**tags_part, "custom_fields": [{"field": field_id, "value": value}]},
+                {**tags_part, "custom_fields": [{"id": field_id, "value": value}]},
             ]
 
             for payload in payload_variants:
