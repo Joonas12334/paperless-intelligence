@@ -23,7 +23,7 @@ AI-powered document processor for Paperless-ngx that uses Ollama to generate doc
 - Python 3.11+
 - [Paperless-ngx](https://github.com/paperless-ngx/paperless-ngx) instance(s)
 - [Ollama](https://github.com/ollama/ollama) server with vision-capable model
-- Optional: PyMuPDF for strict PDF classification
+- Optional: PyMuPDF for accurate PDF classification
 
 ## Installation
 
